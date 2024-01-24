@@ -1,6 +1,12 @@
 from transformers import pipeline
 from openai import OpenAI
-
+import matplotlib.pyplot as plt
+import torch
+from diffusers import (
+    StableDiffusionXLPipeline,
+    KDPM2AncestralDiscreteScheduler,
+    AutoencoderKL
+)
 
 def Huggingface():
     #Definindo modelo pré-treinado baseado em perguntas e respostas - https://huggingface.co/models?sort=trending
@@ -18,6 +24,37 @@ def Huggingface():
     print('Resposta:'+resposta['answer'])
     print('Score:'+str(resposta['score']))
 
+def HuggingFace_Image(prompt):
+    # Load VAE component
+    vae = AutoencoderKL.from_pretrained(
+        "madebyollin/sdxl-vae-fp16-fix",
+        torch_dtype=torch.float32
+    )
+
+    # Configure the pipeline
+    pipe = StableDiffusionXLPipeline.from_pretrained(
+        "dataautogpt3/ProteusV0.1",
+        vae=vae,
+        torch_dtype=torch.float32
+    )
+    pipe.scheduler = KDPM2AncestralDiscreteScheduler.from_config(pipe.scheduler.config)
+    pipe.to('cpu')
+
+    # Define prompts and generate image
+    negative_prompt = "nsfw, bad quality, bad anatomy, worst quality, low quality, low resolutions, extra fingers, blur, blurry, ugly, wrongs proportions, watermark, image artifacts, lowres, ugly, jpeg artifacts, deformed, noisy image"
+
+    image = pipe(
+        prompt,
+        negative_prompt=negative_prompt,
+        width=1024,
+        height=1024,
+        guidance_scale=7,
+        num_inference_steps=20
+    ).images[0]
+
+    plt.imshow(image)
+    plt.show()
+
 def GPT_Text():
     cliente = OpenAI(api_key='')
 
@@ -34,5 +71,5 @@ def GPT_Text():
 
     print(response.choices[0].text)
 
-Huggingface()
+HuggingFace_Image('gatinho mostrando a lingua')
 
