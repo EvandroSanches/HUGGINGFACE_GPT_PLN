@@ -1,6 +1,7 @@
 from transformers import pipeline
 from openai import OpenAI
 
+
 def Huggingface():
     #Definindo modelo pré-treinado baseado em perguntas e respostas - https://huggingface.co/models?sort=trending
     qa_model = pipeline("question-answering", "timpal0l/mdeberta-v3-base-squad2")
@@ -18,7 +19,7 @@ def Huggingface():
     print('Score:'+str(resposta['score']))
 
 def GPT_Text():
-    cliente = OpenAI(api_key='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')
+    cliente = OpenAI(api_key='')
 
     response = cliente.chat.completions.create(
         messages=[
