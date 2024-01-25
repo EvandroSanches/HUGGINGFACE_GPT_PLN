@@ -3,12 +3,13 @@ from openai import OpenAI
 import matplotlib.pyplot as plt
 import torch
 from diffusers import (
+    DiffusionPipeline,
     StableDiffusionXLPipeline,
     KDPM2AncestralDiscreteScheduler,
     AutoencoderKL
 )
 
-def Huggingface():
+def Huggingface_QeA():
     #Definindo modelo pré-treinado baseado em perguntas e respostas - https://huggingface.co/models?sort=trending
     qa_model = pipeline("question-answering", "timpal0l/mdeberta-v3-base-squad2")
 
@@ -71,5 +72,18 @@ def GPT_Text():
 
     print(response.choices[0].text)
 
-HuggingFace_Image('gatinho mostrando a lingua')
+def Diffusion(prompt):
+    pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float32, use_safetensors=True, variant="fp16")
+    pipe.to("cpu")
+
+
+    # if using torch < 2.0
+    # pipe.enable_xformers_memory_efficient_attention()
+
+    images = pipe(prompt=prompt).images[0]
+
+    plt.imshow(images)
+    plt.show()
+
+Diffusion('gatinho de olhos azuis')
 
